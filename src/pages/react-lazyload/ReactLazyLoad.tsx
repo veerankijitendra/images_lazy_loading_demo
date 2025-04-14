@@ -1,17 +1,29 @@
-import useFetch from "../../custom-hooks/useFetch/useFetch";
+import { PropsWithChildren } from "react";
+import LazyLoad, { LazyLoadProps } from "react-lazyload";
 
-interface IProps {
+type TExtraProps = PropsWithChildren & LazyLoadProps;
+
+interface IProps extends TExtraProps {
   // Define your props here
+  className?: string;
 }
 
-export default function ReactLazyLoad({}: IProps) {
-  const { data, loading, error } = useFetch({ url: "/images/burger.json" });
-  if (loading) return <div>Loading</div>;
-
-  if (error) return <div>Something went wrong</div>
+export default function ReactLazyLoad({
+  children,
+  className,
+  debounce = 200,
+  height = 300,
+  offset = 150,
+}: IProps) {
   return (
-    <div>
-      <h1>ReactLazyLoad</h1>
-    </div>
+    <LazyLoad
+      once={true}
+      debounce={debounce}
+      className={`${className}`}
+      height={height}
+      offset={offset}
+    >
+      {children}
+    </LazyLoad>
   );
 }
