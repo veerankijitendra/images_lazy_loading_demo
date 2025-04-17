@@ -3,13 +3,15 @@ import GridLayout from "../../layout/GridLayout";
 import { ReactNode } from "react";
 import { TImageCard } from "../../utils/types";
 import ImageCard from "../../components/image-card/ImageCard";
+import useFetch from "../../custom-hooks/useFetch/useFetch";
+import Loader from "../../components/loader/Loader";
+import ErrorPage from "../../components/errorPage/ErrorPage";
 
 type TExtraProps = LazyLoadProps;
 
 interface IProps extends TExtraProps {
   // Define your props here
   className?: string;
-  data: TImageCard[];
 }
 
 export default function ReactLazyLoad({
@@ -17,11 +19,23 @@ export default function ReactLazyLoad({
   debounce = 200,
   height = 300,
   offset = 150,
-  data: iData,
 }: IProps) {
-  const renderLazyLoadCom = (children: ReactNode) => {
+  const { data, loading, error } = useFetch({ url: "/images/burger.json" });
+
+   if (loading)
+      return (
+        <div>
+          <Loader />
+        </div>
+      );
+  
+    if (error) return <ErrorPage error={error} resetErrorBoundary={() => {}} />;
+
+  const renderLazyLoadCom = (children: ReactNode, key:string) => {
+
     return (
       <LazyLoad
+        key={key}
         once={true}
         debounce={debounce}
         className={`${className}`}
@@ -35,8 +49,8 @@ export default function ReactLazyLoad({
 
   return (
     <GridLayout className="">
-      {iData.map((each: TImageCard) =>
-        renderLazyLoadCom(<ImageCard data={each} />)
+      {data?.results?.map((each: TImageCard) =>
+        renderLazyLoadCom(<ImageCard key={each.id} data={each} />, each.id)
       )}
     </GridLayout>
   );
